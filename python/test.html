@@ -1,0 +1,27 @@
+
+
+<p id="speed"></p>
+
+<script>
+const ws = new WebSocket("ws://localhost:8080"); // match the server port
+let actualSpeed
+
+ws.addEventListener("open", () => {
+  console.log("Connected with mqttWSside");
+});
+
+ws.addEventListener("message", event => {
+  console.log("Message from server:", event.data);
+  console.log(event.data)})
+  
+
+setInterval(function () {
+    //document.getElementById("speed").innerHTML = actualSpeed
+    //console.log(speed)
+
+}, 1000);
+
+ws.addEventListener("error", err => {
+  console.error("WebSocket error:", err);
+});
+</script>

@@ -1,0 +1,66 @@
+<div class="box" style="overflow-x:auto; height:60vh">
+  <table class="table is-fullwidth">
+    <h1 class="title has-text-centered has-text-black">Telemetry points</h1>
+    <thead class="is-size-7">
+      <tr>
+        <th>Timestamp</th>
+        <th>Speed</th>
+        <th>RPM</th>
+        <th>Amb. Temp</th>
+        <th>Amb. Humidity</th>
+        <th>Lat</th>
+        <th>Lon</th>
+        <th>Comments </th>
+        {{! Dummy th element so the edit/delete icons get a border above them on the first row}}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="is-size-7">
+      {{#each trip.telemetry}}
+      <tr>
+        <td>{{formattedTimeStamp}}</td>
+        <td> {{speed}} km/h</td>
+        <td> {{rpm}}</td>
+        <td>{{formattedTemp}} °C </td>
+        <td>{{formattedHumidity}} </td>
+        <td> {{formattedLatitude}}</td>
+        <td> {{formattedLongitude}}</td>
+        <td> {{comments}} </td>
+        {{#if invalidCoords}}
+         <td><a><button class="button" disabled>Invalid Coords</button></a></td>
+         {{else}}
+         <td><a><button class="button" onClick="setMarker({{latitude}}, {{longitude}}, '{{_id}}')">Show on Map</button></a></td>
+        {{/if}}
+       
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+<div class="box" id="map5" style="height:45vh"></div>
+
+
+
+<script>
+  // TELEMETRY POINT MAP
+  const pointMap = L.map('map5').setView([{{ startingLocationLatitude }}, {{ startingLocationLongitude }}], 15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(pointMap);
+
+  // Single marker that can move
+  let marker = null;
+
+  function setMarker(lat, lon, id) {
+    lat = Number(lat);
+    lon = Number(lon);
+    console.log("Marker coords:", lat, lon, id);
+    if (!marker) {
+      marker = L.marker([lat, lon]).addTo(pointMap);
+    } else {
+      marker.setLatLng([lat, lon]); //built-in leaflet function
+    }
+    pointMap.setView([lat, lon], 17);
+  }
+</script>

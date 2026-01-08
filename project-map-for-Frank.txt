@@ -1,0 +1,30 @@
+Hi Frank!
+
+The structure of this project is ambiguous to say the least. 
+To make your life easier (hopefully) I will write below some directions.
+
+- The python folder:
+Contains the python programs needed for the telemetry.
+
+envsensors, spatialsensors - SenseHAT spatialsensors
+obdReceiver - manages the connection and data gathering of the OBD receiver
+gpsReceiver - manages the connection and data gathering of the GPS receiver
+rpmIndicatorv2 - contains a some unused code used for testing - simulated_RPM() and rpmIndicator() are the only active functions
+telemetry - use this one if you have all the sensors (live tesing in a car)
+telemetry-simulated - use this to use simulated data (mostly using randints) - didn't use packet tracer since the simulated data comes from live sensors that are either USB or bluetooth
+lights - just a check mark
+
+- REVmetry Dashboard:
+
+Within the services folder mqtt.js manages the MQTT connection as well as the WebSocket Server.
+
+Within the views folder, dashboard.hbs manages the live data (gauges, map, web socket client).
+Now, since there is a bit of mix between handlebars and javascript, there was no reliable way (or I didn't manage to find it) to separate the scripts from the view.
+
+I couldn't use the WebSockets fully; as in, they don't trigger the DOM update, I used setIntervals - almost polling.
+The rest it's just adapted from the Weather App - but with some functionality removed (cookies, users).
+
+There is one big "game-breaking" bug in the trip controller. 
+Meaning: only one trip can be started, there is no "state" set per trip; If there are multiple users visiting at the same time , all users can stop a trip or start a trip at any time.
+Now this is also because I removed the cookies functionality, tried to strip down the app as much as possible.
+Maybe should have started from scratch but I am pretty happy with it as it is.

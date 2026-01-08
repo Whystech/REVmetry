@@ -1,0 +1,15 @@
+{{#if rpiStatus}}
+{{#if recordStatus}}
+<form action="/dashboard/endtrip" method="POST">
+  <button class="button is-danger">Stop Recording</button>
+</form>
+{{else}}
+<form action="/dashboard/starttrip" method="POST">
+  <button class="button is-info">Record a New Trip</button>
+</form>
+{{/if}}
+{{else}}
+<form action="/dashboard/starttrip" method="POST">
+<button class="button is-warning" disabled>Record Trip</button>
+</form>
+{{/if}}

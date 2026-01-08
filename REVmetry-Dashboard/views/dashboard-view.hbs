@@ -1,0 +1,209 @@
+{{> menu active="dashboard"}}
+<section class="content section background-is-black">
+  {{#if rpiStatus}}
+
+  <div>
+    <button class="button is-info" disabled class=" m-2 is-warning">
+      Pi is currently on and program running.
+    </button>
+  </div>
+  <br>
+  <div class="box columns is-centered">
+    <div class="column is-half">
+      <div style="text-align: center">
+        <h2>Speed</h2>
+        <h3 id="actualSpeed">0</h3>
+        <canvas class="column is-full" id='gauge1'></canvas>
+      </div>
+    </div>
+
+    <div class="column is-half">
+      <div style="text-align: center">
+        <h2>RPM</h2>
+        <h3 id="actualRpm">0</h3>
+        <canvas class="column is-full" id='gauge2'></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h1>
+      Current Location
+    </h1>
+    <div class="" style="height: 45vh" id="currentlocationmap">
+    </div>
+  </div>
+
+  {{else}}
+
+  <div>
+    <button class="button is-danger" disabled class=" m-2 is-warning">
+      Pi is currently off or program not running.
+    </button>
+  </div>
+  <br>
+
+  {{/if}}
+
+  <div class="box">
+    <h1>
+      Trips starting locations
+    </h1>
+    <div class="" style="height: 45vh" id="map1">
+    </div>
+  </div>
+  {{> list-trips}}
+  <div class="box">
+    {{> record-button}}
+  </div>
+
+
+</section>
+
+<script>
+  ///TRIPS LOCATION MAPS
+  const map = L.map('map1').setView([50, 10], 5);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+</script>
+
+<script>
+  ///CURRENT LOCATION MAP
+  const currentlocationmap = L.map('currentlocationmap').setView([45, 20], 3);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(currentlocationmap);
+</script>
+
+{{#each trips}}
+<script>
+  L.marker([{{ startingLocationLatitude }}, {{ startingLocationLongitude }}]).addTo(map)
+    .bindPopup('{{_id}}');
+</script>
+{{/each}}
+
+<script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
+<script> src = "/scripts/speedGauge.js"</script>
+<script>
+  ///GAUGES SCRIPT + LIVE ASSIGNMENT OF DATA
+  let speedFromMqtt
+  let rpmFromMqtt
+  let latFromMqtt
+  let lonFromMqtt
+  let speed = speedFromMqtt || 0 //OR 0 to avoid undefined text
+  let rpm = rpmFromMqtt || 0
+
+  /// Comments from the original creator.
+  const opts1 = {
+    angle: -0.11, // The span of the gauge arc
+    lineWidth: 0.15, // The line thickness
+    radiusScale: 0.78, // Relative radius
+    pointer: {
+      length: 0.42, // // Relative to gauge radius
+      strokeWidth: 0.033, // The thickness
+      color: '#000000' // Fill color
+    },
+    limitMax: false,     // If false, max value increases automatically if value > maxValue
+    limitMin: false,     // If true, the min value of the gauge will be fixed
+    colorStart: '#6F6EA0',   // Colors
+    colorStop: '#6F6EA0',    // just experiment with them
+    strokeColor: '#EEEEEE',  // to see which ones work best for you
+    generateGradient: false,
+    highDpiSupport: false,     // High resolution support
+  };
+
+  let target1 = document.getElementById('gauge1'); // your canvas element
+  const gauge1 = new Gauge(target1).setOptions(opts1);
+  gauge1.maxValue = 360;
+  gauge1.setMinValue(10);  // Prefer setter over gauge.minValue = 0
+  gauge1.animationSpeed = 45; // set animation speed (32 is default value)
+  gauge1.set(speed); // set actual value
+
+  const opts2 = {
+    angle: -0.10, // The span of the gauge arc
+    lineWidth: 0.15, // The line thickness
+    radiusScale: 0.78, // Relative radius
+    pointer: {
+      length: 0.42, // // Relative to gauge radius
+      strokeWidth: 0.033, // The thickness
+      color: '#000000' // Fill color
+    },
+    limitMax: false,     // If false, max value increases automatically if value > maxValue
+    limitMin: false,     // If true, the min value of the gauge will be fixed
+    colorStart: '#930808',   // Colors
+    colorStop: '#930808',    // just experiment with them
+    strokeColor: '#EEEEEE',  // to see which ones work best for you
+    generateGradient: false,
+    highDpiSupport: false,     // High resolution support
+  };
+
+
+  let target2 = document.getElementById('gauge2'); // your canvas element
+  const gauge2 = new Gauge(target2).setOptions(opts2);
+  gauge2.maxValue = 5000;
+  gauge2.setMinValue(10);  // Prefer setter over gauge.minValue = 0
+  gauge2.animationSpeed = 45; // set animation speed (32 is default value)
+
+
+  ////LIVE TELEMETRY DATA + WEBSOCKET SETUP/////
+  let wsUrl;
+  let protocol;
+  //RENDER uses https instead of http (local
+  if (window.location.protocol === 'https:') {
+    protocol = 'wss:'; //Render
+  } else {
+    protocol = 'ws:'; //Local
+  }
+
+  if (window.location.hostname === 'rpi') { //for testing on local network since the hostname of the Pi is rpi
+    wsUrl = 'ws://rpi:4000';
+  }
+  else if (window.location.hostname === 'localhost') {
+    // Local
+    wsUrl = 'ws://localhost:4000';
+  } else {
+    // RENDER
+    wsUrl = `${protocol}//${window.location.host}`;
+  }
+  const ws = new WebSocket(wsUrl);
+
+  ws.addEventListener("open", () => {
+    console.log("Connected to WebSocket Server.");
+  });
+
+  ws.addEventListener("message", event => {
+    speedFromMqtt = JSON.parse(event.data).speed
+    rpmFromMqtt = JSON.parse(event.data).rpm
+    latFromMqtt = JSON.parse(event.data).latitude
+    lonFromMqtt = JSON.parse(event.data).longitude
+
+  });
+
+  ws.addEventListener("error", err => {
+    console.error("WebSocket error:", err);
+  })
+
+  ///Assign live data, map updates, gauge positions, markers
+  ///Did not manage to get WebSocket to trigger live DOM manipulation, had to revert to polling.
+  let marker = null;
+  setInterval(function () {
+    rpmFromMqtt ??= 0 //avoid undefined text
+    speedFromMqtt ??= 0
+    latFromMqtt ??= 0
+    lonFromMqtt ??= 0
+    document.getElementById("actualSpeed").innerHTML = speedFromMqtt
+    document.getElementById("actualRpm").innerHTML = rpmFromMqtt
+    gauge2.set(rpmFromMqtt)
+    gauge1.set(speedFromMqtt)
+
+    currentlocationmap.setView([latFromMqtt, lonFromMqtt], 15, { animate: true });
+    if (!marker) {
+      marker = L.marker([latFromMqtt, lonFromMqtt]).addTo(currentlocationmap);
+    } else {
+      marker.setLatLng([latFromMqtt, lonFromMqtt]); //built-in leaflet function
+    }
+  }, 500);
+</script>
