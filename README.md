@@ -234,8 +234,8 @@ https://leafletjs.com/reference.html
 https://python-obd.readthedocs.io/en/latest/
 
 - GPSD 
-https://gpsd.io/client-howto.html - tools
-https://pypi.org/project/gpsdclient/ - python
+https://gpsd.io/client-howto.html - tools  
+https://pypi.org/project/gpsdclient/ - python  
 
 ### Images
 
@@ -243,7 +243,7 @@ https://pypi.org/project/gpsdclient/ - python
 OFL Licence
 
 - https://icones.js.org/collection/academicons
--OFL Licence
+OFL Licence
 
 ### Guides and other sources of information
 
@@ -252,8 +252,9 @@ https://cedalo.com/blog/configuring-paho-mqtt-python-client-with-examples/#Confi
 
 - WebSockets  
 https://gpsd.io/client-howto.html
-https://render.com/docs/websocket - doesn't really mention that Render DOESN'T allow custom PORT setting.
-https://www.youtube.com/watch?v=FduLSXEHLng&t=366s
+https://render.com/docs/websocket - doesn't really mention that Render DOESN'T allow custom PORT setting.  
+
+https://www.youtube.com/watch?v=FduLSXEHLng&t=366s  
 Very good tutorial, explains how WebSockets work on the browser-side   
 
 
@@ -262,5 +263,4 @@ Very good tutorial, explains how WebSockets work on the browser-side
 - Sometimes the starting and ending location will be registed as (0,0), the map will display the middle of the ocean, Null Island is a nice place to find yourself in.
 - The invalid coords are "usually" genuine (e.g the GPS can't get a reading yet - the location has not been fixed, insufficient satellites, passing through a tunnel)
 - Some frontend "anomalies": sometimes the RPM  gauge will not render, a refresh will most likely fix it.
-
 - As it is built right now, there are no sessions or users registered, anyone who will access the webapp will have shared controls.
