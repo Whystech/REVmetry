@@ -268,4 +268,4 @@ Very good tutorial, explains how WebSockets work on the browser-side
 
 ## Youtube link
 
-https://youtu.be/632jdCj82gA
+https://youtu.be/iLiB-UccBNo
