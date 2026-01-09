@@ -264,3 +264,8 @@ Very good tutorial, explains how WebSockets work on the browser-side
 - The invalid coords are "usually" genuine (e.g the GPS can't get a reading yet - the location has not been fixed, insufficient satellites, passing through a tunnel)
 - Some frontend "anomalies": sometimes the RPM  gauge will not render, a refresh will most likely fix it.
 - As it is built right now, there are no sessions or users registered, anyone who will access the webapp will have shared controls.
+
+
+## Youtube link
+
+https://youtu.be/632jdCj82gA
