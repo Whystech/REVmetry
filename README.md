@@ -50,7 +50,7 @@ Otherwise, run the program below that simulates sensor data:
 ```
 python ./REVmetry/simulated-telemetry.py
 ```
-- To see the dashboard either access the deployed webapp at `testrev.onrender.com`
+- To see the dashboard either access the deployed webapp at `https://revmetry.onrender.com`
 
 OR
 - Run it locally using
